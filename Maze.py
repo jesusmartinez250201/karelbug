@@ -7,8 +7,6 @@ class Maze:
         """Initialize the maze
         attributes:
             maze: matrix that represents the maze
-            start: start corner of the maze
-            end: end corner of the maze
             """
         self.corners = []
         self.walls = []
