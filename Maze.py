@@ -5,8 +5,6 @@ class Maze:
     """Class that represents the maze in the Karel game"""
     def __init__(self):
         """Initialize the maze
-        attributes:
-            maze: matrix that represents the maze
             """
         self.corners = []
         self.walls = []
