@@ -36,8 +36,6 @@ class Maze:
                     self.walls.append(Wall(corner.x, corner.y, corner.x, corner.y + 1, False, True))
                 else:
                     self.walls.append(Wall(corner.x, corner.y, corner.x, corner.y + 1))
-        
-
 
     def is_on_wall(self, x, y, tolerance=10):
         """Check if the given coordinates are on a wall
@@ -78,7 +76,7 @@ class Maze:
                     if min_x <= x <= max_x and min_y <= y <= max_y:
                         return ((wall.x_start, wall.y_start), (wall.x_end, wall.y_end))
         return False
-    
+
     def get_corner(self, x, y):
         """Get the corner at the given coordinates
         params:
@@ -98,7 +96,3 @@ class Maze:
             if wall.get_coordinates() == position:
                 return wall
         return False
-            
-
-
-
