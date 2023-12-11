@@ -25,3 +25,6 @@ class Button:
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
         return action
+
+    def update_image(self, new_image):
+        self.image = new_image

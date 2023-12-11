@@ -11,3 +11,4 @@ class Move:
     def draw(self):
 
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
+
