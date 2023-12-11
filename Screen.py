@@ -51,6 +51,7 @@ class Screen:
             movimientos: add and remove the movement list of the player
             all_movimientos: add and print the movement list of the player
             while: actions: add the movements of the cicle list
+            while_condition: añade las condiciones para la lista en ciclo
         """
 
         self.movimientos = []
@@ -62,6 +63,8 @@ class Screen:
         limit_x_min and limit_x_max: set the actual limit of x axis
         limit_y_min and limit_y_max: set the actual limit of y axis
         actual_limit: set the actual limit of the player
+        left_limit: set the actual limit of the right side of the player
+        right_limit: set the actual limit of the left side of the player
         """
 
         self.limit_x_min = 0
@@ -86,6 +89,7 @@ class Screen:
             dview: get the actual view direction
             bug_view: get the player view direction
             last_view: check if the player view direction match the actual view direction
+            prev_view: has the previous value of last_view
         """
 
         self.dview = self.direction[3]
@@ -174,6 +178,8 @@ class Screen:
 
 
     def run(self):
+        """Run the game loop"""
+        # Establece los botones visibles iniciales
 
         self.while_btn_enabled = True
         self.end_while_btn_enabled = False
@@ -186,15 +192,21 @@ class Screen:
             self.update_maze()
             self.update_movements()
 
+            # fill the screen with a color to wipe away anything from last frame
             self.screen.fill("black")
 
+            # poll for events
+            # pygame.QUIT event means the user clicked X to close your window
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-
+                # Get the clicked event
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Get the position of the mouse
                     pos = pygame.mouse.get_pos()
+                    # Check if the mouse is on the right side of the screen
                     if pos[0] > self.width / 2:
+                        # Check if the mouse is between two corners
                         wall = self.maze.is_on_wall(pos[0], pos[1])
                         if wall:
                             if self.maze.get_wall(wall).is_drawn:
@@ -212,13 +224,16 @@ class Screen:
                                 cosa2 = wall[1]
                                 #add the wall colition
                                 self.walls_colition.append(((cosa[0],cosa[1]),(cosa2[0],cosa2[1])))
-                        
+
+            # Draw a white vertical line in the middle of the screen
             pygame.draw.line(self.screen, "white", (self.width / 2, 0), (self.width / 2, self.height))
 
+            # Draw the player
             self.img_rect = self.bug_img.get_rect()
             self.img_rect.center = (self.cord_x + 25, self.cord_y + 25)
             self.screen.blit(self.bug_img, self.img_rect)
 
+            # Change the image of the list of movements
             if self.end_while_btn_enabled:
                 self.move_up_btn.update_image(self.up_w_img)
                 self.turn_right_btn.update_image(self.turn_right_w_img)
@@ -228,6 +243,7 @@ class Screen:
                 self.turn_right_btn.update_image(self.turn_right_img)
                 self.turn_left_btn.update_image(self.turn_left_img)
 
+            # Draw and configure the buton turn left
             if self.wall_con and self.turn_left_btn.draw():
                 if self.end_while_btn_enabled:
                     if len(self.while_actions) <= self.count_while:
@@ -236,6 +252,7 @@ class Screen:
                 else:
                     self.handle_button_click("turn_left")
 
+            # Draw and configure the buton turn right
             if self.wall_con and self.turn_right_btn.draw():
                 if self.end_while_btn_enabled:
                     if len(self.while_actions) <= self.count_while:
@@ -248,6 +265,7 @@ class Screen:
                 self.movimientos.append('I')
                 self.all_movimientos.append('I')"""
 
+            # Draw and configure the move button
             if self.wall_con and self.move_up_btn.draw():
                 if self.end_while_btn_enabled:
                     if len(self.while_actions) <= self.count_while:
@@ -256,12 +274,15 @@ class Screen:
                 else:
                     self.handle_button_click("move_up")
 
+            # Check if can restart the game and draw and configure the play button
             if self.can_restart == False and self.while_btn_enabled and self.play_btn.draw():
                     self.handle_button_click("play")
             
+            # Check if can restart the game and draw and configure the reestart button
             if self.can_restart == True and self.while_btn_enabled and self.reestart_btn.draw():
                     self.handle_button_click("restart")
 
+            # Draw the button while, configure it and show the buttons to append
             if self.while_btn_enabled and self.while_btn.draw():
                 self.while_btn_enabled = False
                 self.end_while_btn_enabled = True
@@ -302,9 +323,9 @@ class Screen:
 
             num = 0
 
+            # Check if has walls colitions
             if self.walls_colition:
                 while num < len(self.walls_colition):
-                    print(self.walls_colition, self.actual_limit)
                     if self.actual_limit == self.walls_colition[num]:
                         self.speed_y = 0
                         self.speed_x = 0
@@ -317,14 +338,16 @@ class Screen:
                     num += 1
                 num = 0
 
+            # Check if can move
             if self.move_x == 0 and self.move_y == 0 and self.move == 1:
+                # Check if the players has movements
                 if self.movimientos:
-                    #print(self.cord_x,self.cord_y)
-                    #print(self.actual_limit,self.walls_colition)
+                    # Check if the player has a cicle
                     if self.movimientos[0] == 'Wh':
-                        #if self.left_limit in self.walls_colition or self.left_limit in self.limits_colition:
+                        # Check if the player is in the last move to reestart the cicle
                         if self.count_while2 > len(self.while_actions[0])-1:
                             self.count_while2 = 0
+                        # Check if the player moves to any direction
                         if self.move == 1 and self.while_actions[0][self.count_while2] == "M":
                             if self.last_view == self.direction[0]:
                                 self.handle_while_movement('X')
@@ -338,11 +361,13 @@ class Screen:
                             else:
                                 self.handle_while_movement('Y')
                                 self.is_blocked()
+                        # Check if the player turn to right or left
                         elif self.move == 1 and self.while_actions[0][self.count_while2] == "L":
                                 self.handle_while_movement('L')
                         elif self.move == 1 and self.while_actions[0][self.count_while2] == "R":
                                 self.handle_while_movement('R')                  
 
+                        # Check if the player can move 
                         if self.stop == 1 and self.while_actions[0][self.count_while2] in self.direction2:
                             if self.actual_limit in self.walls_colition:
                                 self.movimientos.remove((self.movimientos[0]))
@@ -365,6 +390,7 @@ class Screen:
                             print(self.movimientos)
 
                     else:
+                        # Check if the player moves to right
                         if self.move == 1 and self.movimientos[0] == 'X':
                             self.move_x = 50
                             self.speed_x = 5
@@ -373,6 +399,7 @@ class Screen:
                             self.limit_x_max += 1
                             self.is_blocked()
 
+                        # Check if the player moves to left
                         elif self.move == 1 and self.movimientos[0] == '-X':
                             self.move_x = 50
                             self.speed_x = -5
@@ -381,6 +408,7 @@ class Screen:
                             self.limit_x_max += 1
                             self.is_blocked()
 
+                        # Check if the player moves to the bottom
                         elif self.move == 1 and self.movimientos[0] == 'Y':
                             self.move_y = 50
                             self.speed_y = -5
@@ -389,6 +417,7 @@ class Screen:
                             self.limit_y_max -= 1
                             self.is_blocked()
 
+                        # Check if the player moves up
                         elif self.move == 1 and self.movimientos[0] == '-Y':
                             self.move_y = 50
                             self.speed_y = 5
@@ -397,9 +426,11 @@ class Screen:
                             self.limit_y_max += 1
                             self.is_blocked()
 
+                        # Check if the player rotates or remove the previus move from the move list
                         if self.movimientos[0] not in self.direction:
                             self.movimientos.remove(self.movimientos[0])
                         else:
+                            # Check if the player needs to rotate
                             if self.bug_view != self.movimientos[0]:
                                 self.bugV2 -= 1
                                 if self.bugV2 < 0:
@@ -410,6 +441,7 @@ class Screen:
                                 self.is_blocked()
                                 self.movimientos.remove(self.movimientos[0])
 
+                        # Check if the player can move
                         if len(self.movimientos) > 1:
                             if self.stop == 1 and self.movimientos[1] in self.direction2:
                                 if self.actual_limit in self.walls_colition:
@@ -420,8 +452,9 @@ class Screen:
                                     self.pressed = False
                                     self.move = 0
                                     self.stop = 0
-
+            # Update player position
             else:
+                #check if the next player move is in the limits of the maze
                 if self.move_x > 0 and self.cord_x >= 625 and self.cord_x <= 1125:
                     self.move_x -= 5
                     self.cord_x += self.speed_x
@@ -432,6 +465,7 @@ class Screen:
                 if self.move_x == 0:
                     self.speed_x = 0
 
+                #check if the next player move is in the limits of the maze
                 if self.move_y > 0 and self.cord_y >= 50 and self.cord_y <= 550:
                     self.move_y -= 5
                     self.cord_y += self.speed_y
@@ -449,18 +483,18 @@ class Screen:
                         self.move = 0
                         self.pressed = False
 
+            # Draw the corners of the maze on the right side of the screen
             self.update_maze()
             self.update_movements()
 
+            # flip() the display to put your work on screen
             pygame.display.flip()
 
-            self.clock.tick(60)
+            self.clock.tick(60) # limits FPS to 60
 
         pygame.quit()
 
-
-        pygame.quit()
-
+    # Maneja la funcionalidad de los botones
     def handle_button_click(self, button):
         if button == "turn_left":
             self.turn_left()
@@ -473,6 +507,7 @@ class Screen:
         elif button == "restart":
             self.restart()
 
+    # Maneja la funcionalidad de la lista ciclica
     def handle_while_button_click(self, action):
         if action == "end_while":
             # Terminar el ciclo
@@ -481,7 +516,7 @@ class Screen:
             self.wall_on_left_btn_enabled = False
             self.wall_on_right_btn_enabled = False
             self.wall_in_front_btn_enabled = False
-            # ... Agregar lógica para procesar las acciones del jugador durante el ciclo
+            # Agregar lógica para procesar las acciones del jugador durante el ciclo
             print("Actions during while loop:", self.while_actions)
             for wh in self.while_actions:
                 if not wh:
@@ -501,6 +536,8 @@ class Screen:
             
             self.count_while += 1
             self.while_actions.append([])
+        
+        # Procesa las acciones dentro de la lista ciclica
         elif action in ["Turn Left", "Turn Right", "Move Up"]:
             if len(self.while_actions) <= self.count_while:
                 self.while_actions.append([])
@@ -520,6 +557,7 @@ class Screen:
                 self.while_condition.append([])
             self.while_condition[self.count_while].append(action)
 
+    # Maneja la funcionalidad de los movimientos en la lista ciclica
     def handle_while_movement(self, move):
         if move == "X":
             self.move_x = 50
@@ -556,6 +594,7 @@ class Screen:
             self.prev_view = self.last_view
             self.last_view = self.direction[self.bugV]
             self.bug_img = pygame.transform.rotate(self.bug_img, 90)
+        
         elif move == 'R':
             self.bugV += 1
             if self.bugV > 3:
@@ -565,6 +604,7 @@ class Screen:
             self.bug_img = pygame.transform.rotate(self.bug_img, 270)
 
     # Agregar funciones de movimiento según las direcciones y lógica específica del juego
+    #############################
     def turn_left(self):
         self.bugV -= 1
         if self.bugV < 0:
@@ -596,7 +636,9 @@ class Screen:
         else:
             self.movimientos.append('Y')
             self.all_movimientos.append('Y')
+    #############################
 
+    # Inicia la ejecucion de las acciones
     def play(self):
         if not self.can_restart:
             self.move = 1
@@ -604,6 +646,7 @@ class Screen:
             self.can_restart = True
             print(self.all_movimientos)
 
+    # Restaura el juego a sus valores predeterminados
     def restart(self):
         self.cord_x = 625
         self.cord_y = 550
@@ -630,6 +673,7 @@ class Screen:
         self.is_blocked()
         self.can_restart = False     
     
+    # Actualiza el laberinto
     def update_maze(self):
         """Redraw the maze"""
         for row in self.maze.corners:
@@ -686,8 +730,8 @@ class Screen:
                 move_cord_x = move_cord2_x-30
                 move_cord_y = move_cord2_y
 
-            elif self.all_movimientos[move] == 'I':
-                Move(move_cord_x, move_cord_y, self.if_mini_img, self.screen).draw()
+            """elif self.all_movimientos[move] == 'I':
+                Move(move_cord_x, move_cord_y, self.if_mini_img, self.screen).draw()"""
 
             move_cord_x += 30
             if move_cord_x > 500:
@@ -707,6 +751,7 @@ class Screen:
         self.is_left_blocked()
         self.is_right_blocked()
 
+    # Check if the player has a wall in his left
     def is_left_blocked(self):
         if self.bug_view == 'E':
             self.left_limit = ((self.limit_x_min,self.limit_y_max),(self.limit_x_min,self.limit_y_min))
@@ -717,6 +762,7 @@ class Screen:
         if self.bug_view == 'N':
             self.left_limit = ((self.limit_x_min,self.limit_y_min),(self.limit_x_min,self.limit_y_max))
 
+    # Check if the player has a wall in his right
     def is_right_blocked(self):
         if self.bug_view == 'E':
             self.right_limit = ((self.limit_x_min,self.limit_y_min),(self.limit_x_max,self.limit_y_min))
